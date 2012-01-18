@@ -24,12 +24,18 @@ module OmniAuth
 
         begin
           uri = URI(options.endpoint)
+
+          http = Net::HTTP.new(uri.host, uri.port)
+          if uri.scheme == 'https'
+            http.use_ssl = true
+            http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+          end
+
           req = Net::HTTP::Get.new(uri.request_uri)
           req.basic_auth request['username'], request['password']
+          res = http.request(req)
 
-          res = Net::HTTP.start(uri.host, uri.port) {|http| http.request(req) }
           return fail!(:invalid_credentials) if res.code.to_i >= 400
-
           super
         rescue Exception => e
           fail!(:http_basic_error, e)
