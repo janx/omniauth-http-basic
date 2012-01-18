@@ -1,0 +1,21 @@
+= OmniAuth::HttpBasic
+
+OmniAuth stratgies for APIs that have HTTP Basic authentication.
+
+This strategy is intended for developer's convinience, it will NOT set any uid or auth_hash data like a user strategy. So in most cases you need to create your own strategy by subclassing this strategy, and set uid and auth_hash there.
+
+== Subclass Example (Recommended)
+
+== Usage (Not Recommended)
+
+Install manually or using Bundler:
+
+    gem 'omniauth-http-basic'
+
+Add :http_basic provider to omniauth builder:
+
+    use OmniAuth::Builder do
+      provider :http_basic, "https://example.com/user_info"
+      # provider ...
+    end
+
