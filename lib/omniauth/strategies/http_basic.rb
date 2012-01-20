@@ -8,8 +8,7 @@ module OmniAuth
 
       args [:endpoint]
 
-      option :name, "http_basic"
-      option :title, "Http Basic"
+      option :title,   "Http Basic"
       option :headers, {}
 
       def request_phase
@@ -20,27 +19,45 @@ module OmniAuth
       end
 
       def callback_phase
-        raise MissingCredentialsError.new("Missing login credentials") unless request['username'] && request['password']
+        return fail!(:invalid_credentials) if !authentication_response
+        return fail!(:invalid_credentials) if authentication_response.code.to_i >= 400
+        super
+      end
 
-        begin
-          uri = URI(options.endpoint)
+      protected
 
-          http = Net::HTTP.new(uri.host, uri.port)
-          if uri.scheme == 'https'
-            http.use_ssl = true
-            http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        # by default we use static uri. If dynamic uri is required, override
+        # this method.
+        def api_uri
+          options.endpoint
+        end
+
+        def username
+          request['username']
+        end
+
+        def password
+          request['password']
+        end
+
+        def authentication_response
+          unless @authentication_response
+            return unless username && password
+
+            uri = URI(api_uri)
+            http = Net::HTTP.new(uri.host, uri.port)
+            if uri.scheme == 'https'
+              http.use_ssl = true
+              http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+            end
+
+            req = Net::HTTP::Get.new(uri.request_uri)
+            req.basic_auth username, password
+            @authentication_response = http.request(req)
           end
 
-          req = Net::HTTP::Get.new(uri.request_uri)
-          req.basic_auth request['username'], request['password']
-          res = http.request(req)
-
-          return fail!(:invalid_credentials) if res.code.to_i >= 400
-          super
-        rescue Exception => e
-          fail!(:http_basic_error, e)
+          @authentication_response
         end
-      end
 
     end
   end
