@@ -4,9 +4,11 @@ OmniAuth stratgies for APIs that have HTTP Basic authentication.
 
 This strategy is intended for developer's convinience, it will NOT set any uid or auth_hash data like a user strategy. So in most cases you need to create your own strategy by subclassing this strategy, and set uid and auth_hash there.
 
-== Subclass Example
+== Use it by subclass
 
-== Usage (Not Recommended)
+Check https://github.com/janx/omniauth-broadworks for example.
+
+== 
 
 Install manually or using Bundler:
 
@@ -18,4 +20,3 @@ Add :httpbasic provider to omniauth builder:
       provider :httpbasic, "https://example.com/user_info"
       # provider ...
     end
-
